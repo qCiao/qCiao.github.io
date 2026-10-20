@@ -97,7 +97,7 @@
         '<a href="' + post.url + '"><div class="result-title">' +
         highlight(post.title, q) +
         '</div><p class="result-meta">' +
-        escapeHtml(post.date) +
+        escapeHtml(post.meta || post.date) +
         (post.tags && post.tags.length ? ' / ' + escapeHtml(post.tags.join(' · ')) : '') +
         '</p><p class="result-snippet">' +
         highlight(snippet(post, q), q) +

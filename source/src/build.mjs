@@ -1,6 +1,8 @@
 /**
- * 生成器：把 posts/*.md 和 pages/*.md 变成 dist/ 里的静态站点。
+ * 生成器：把 posts/*.md（随笔）和 archive/*.md（存档）变成 dist/ 里的静态站点。
  * 用法：node src/build.mjs [--drafts]
+ *
+ * 文件名以 _ 开头的文件会被跳过，可以拿来做模板。
  */
 
 import fs from 'node:fs';
@@ -14,7 +16,7 @@ const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 const withDrafts = process.argv.includes('--drafts');
 
-/* ---------------------------- 配置与文章 ---------------------------- */
+/* ---------------------------- 配置与内容 ---------------------------- */
 
 const config = JSON.parse(fs.readFileSync(path.join(root, 'site.config.json'), 'utf8'));
 
@@ -69,34 +71,65 @@ function toTags(value) {
   return [...new Set(list.map((s) => String(s).trim()).filter(Boolean))];
 }
 
-function readPosts() {
-  const dir = path.join(root, 'posts');
-  if (!fs.existsSync(dir)) return [];
-
+function listMarkdown(dir) {
+  const full = path.join(root, dir);
+  if (!fs.existsSync(full)) return [];
   return fs
-    .readdirSync(dir)
+    .readdirSync(full)
     .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
-    .map((file) => {
-      const raw = fs.readFileSync(path.join(dir, file), 'utf8');
-      const { data, body } = parseFrontMatter(raw);
-      const base = file.replace(/\.md$/, '');
-      const dateFromName = /^(\d{4}-\d{2}-\d{2})/.exec(base)?.[1];
-      const slug = base.replace(/^\d{4}-\d{2}-\d{2}-?/, '') || base.replace(/^\d{4}-\d{2}-\d{2}-?/, '2026');
-      const stat = fs.statSync(path.join(dir, file));
-      const date = parseDate(data.date || dateFromName, stat.mtime);
+    .map((file) => ({ file, dir, full: path.join(full, file) }));
+}
 
+function parseFile({ file, full }) {
+  const raw = fs.readFileSync(full, 'utf8');
+  const { data, body } = parseFrontMatter(raw);
+  const base = file.replace(/\.md$/, '');
+  const dateFromName = /^(\d{4}-\d{2}-\d{2})/.exec(base)?.[1];
+  const slug = base.replace(/^\d{4}-\d{2}-\d{2}-?/, '') || base;
+  const stat = fs.statSync(full);
+  const date = parseDate(data.date || dateFromName, stat.mtime);
+  return { data, body, slug, date, raw };
+}
+
+function readPosts() {
+  return listMarkdown('posts')
+    .map((entry) => {
+      const { data, body, slug, date } = parseFile(entry);
       return {
-        file,
+        type: 'essay',
+        file: entry.file,
         slug,
-        title: data.title || base,
+        title: data.title || slug,
         date,
         tags: toTags(data.tags || data.tag),
         summary: data.summary || plainExcerpt(body),
         draft: String(data.draft) === 'true',
         minutes: readingTime(body),
-        source: body.trim(),
-        html: renderMarkdown(body),
         raw: body,
+        html: renderMarkdown(body),
+      };
+    })
+    .filter((p) => withDrafts || !p.draft)
+    .sort((a, b) => b.date - a.date);
+}
+
+function readArchive() {
+  return listMarkdown('archive')
+    .map((entry) => {
+      const { data, body, slug, date } = parseFile(entry);
+      return {
+        type: 'archive',
+        file: entry.file,
+        slug,
+        title: data.title || slug,
+        author: data.author || '',
+        source: data.source || data.link || '',
+        date,
+        tags: toTags(data.tags || data.tag),
+        draft: String(data.draft) === 'true',
+        summary: data.summary || plainExcerpt(body) || (data.author ? `收藏：${data.author}` : ''),
+        raw: body,
+        html: body.trim() ? renderMarkdown(body) : '',
       };
     })
     .filter((p) => withDrafts || !p.draft)
@@ -129,19 +162,25 @@ function copyDir(from, to) {
 /* -------------------------------- 主流程 -------------------------------- */
 
 const posts = readPosts();
+const archive = readArchive();
+
 const tagCount = new Map();
-for (const p of posts) for (const t of p.tags) tagCount.set(t, (tagCount.get(t) || 0) + 1);
+for (const item of [...posts, ...archive]) {
+  for (const t of item.tags) tagCount.set(t, (tagCount.get(t) || 0) + 1);
+}
 const tags = [...tagCount.entries()]
   .map(([name, count]) => ({ name, count }))
   .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh'));
 
 const yearCount = new Map();
-for (const p of posts) yearCount.set(p.date.getFullYear(), (yearCount.get(p.date.getFullYear()) || 0) + 1);
-const years = [...yearCount.entries()]
+for (const item of archive) {
+  yearCount.set(item.date.getFullYear(), (yearCount.get(item.date.getFullYear()) || 0) + 1);
+}
+const archiveYears = [...yearCount.entries()]
   .map(([year, count]) => ({ year, count }))
   .sort((a, b) => b.year - a.year);
 
-const ctx = { config, posts, tags, years };
+const ctx = { config, posts, archive, tags, archiveYears };
 
 if (fs.existsSync(dist)) fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
@@ -149,7 +188,7 @@ fs.mkdirSync(dist, { recursive: true });
 // 首页
 write('index.html', T.homePage(ctx));
 
-// 日志列表 + 分页
+// 最近文章 + 分页
 const perPage = config.perPage || 8;
 const totalPages = Math.max(1, Math.ceil(posts.length / perPage));
 for (let page = 1; page <= totalPages; page++) {
@@ -157,22 +196,30 @@ for (let page = 1; page <= totalPages; page++) {
   write(rel, T.listPage(ctx, page, totalPages));
 }
 
-// 单篇
+// 随笔详情
 posts.forEach((post, index) => {
   const newer = posts[index - 1] || null;
   const older = posts[index + 1] || null;
   write(`posts/${post.slug}/index.html`, T.postPage(ctx, post, older, newer));
 });
 
-// 归档、标签、搜索、关于、404
-write('archives/index.html', T.archivePage(ctx));
-write('tags/index.html', T.tagsPage(ctx));
+// 存档
+write('archive/index.html', T.archivePage(ctx));
+archive.forEach((item, index) => {
+  const newer = archive[index - 1] || null;
+  const older = archive[index + 1] || null;
+  write(`archive/${item.slug}/index.html`, T.archiveItemPage(ctx, item, older, newer));
+});
 
+// 标签
+write('tags/index.html', T.tagsPage(ctx));
 for (const tag of tags) {
-  const list = posts.filter((p) => p.tags.includes(tag.name));
-  write(`tags/${tag.name}/index.html`, T.tagPostPage(ctx, tag.name, list));
+  const essays = posts.filter((p) => p.tags.includes(tag.name));
+  const items = archive.filter((a) => a.tags.includes(tag.name));
+  write(`tags/${tag.name}/index.html`, T.tagPostPage(ctx, tag.name, essays, items));
 }
 
+// 搜索、关于、404
 write('search/index.html', T.searchPage(ctx));
 
 const aboutFile = path.join(root, 'pages', 'about.md');
@@ -183,18 +230,25 @@ if (fs.existsSync(aboutFile)) {
 
 write('404.html', T.notFoundPage(ctx));
 
-// 搜索索引
-const searchIndex = posts.map((p) => ({
-  title: p.title,
-  url: T.postUrl(p),
-  date: T.fmtShort(p.date),
-  tags: p.tags,
-  summary: p.summary,
-  text: plainExcerpt(p.raw, 1600),
-}));
+// 搜索索引（随笔 + 存档）
+const searchIndex = [...posts, ...archive]
+  .sort((a, b) => b.date - a.date)
+  .map((p) => ({
+    title: p.title,
+    url: p.type === 'essay' ? T.postUrl(p) : T.archiveUrl(p),
+    date: T.fmtShort(p.date),
+    type: p.type === 'essay' ? '随笔' : '存档',
+    tags: p.tags,
+    author: p.author || '',
+    summary: p.summary,
+    meta: [T.fmtShort(p.date), p.type === 'essay' ? '随笔' : '存档', p.author || '']
+      .filter(Boolean)
+      .join(' / '),
+    text: plainExcerpt(p.raw, 1600),
+  }));
 write('index.json', JSON.stringify(searchIndex));
 
-// RSS
+// RSS：只放自己写的东西
 const siteUrl = config.url.replace(/\/$/, '');
 const feedEntries = posts
   .slice(0, 30)
@@ -232,11 +286,12 @@ const urls = [
   '/',
   '/blog/',
   ...Array.from({ length: totalPages - 1 }, (_, i) => `/blog/page/${i + 2}/`),
-  '/archives/',
+  '/archive/',
   '/tags/',
   '/search/',
   '/about/',
   ...posts.map((p) => T.postUrl(p)),
+  ...archive.map((a) => T.archiveUrl(a)),
   ...tags.map((t) => T.tagUrl(t.name)),
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -251,5 +306,7 @@ write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`
 copyDir(path.join(root, 'assets'), path.join(dist, 'assets'));
 write('.nojekyll', '');
 
-console.log(`✓ 生成完成：${posts.length} 篇文章，${tags.length} 个标签，${totalPages} 页`);
+console.log(
+  `✓ 生成完成：随笔 ${posts.length} 篇，存档 ${archive.length} 篇，标签 ${tags.length} 个`
+);
 console.log(`  输出目录：${dist}`);

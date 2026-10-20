@@ -1,5 +1,9 @@
 /**
  * 页面模板。所有函数都返回 HTML 字符串，由 build.mjs 写进 dist/。
+ *
+ * 两类内容：
+ *   随笔（posts/）    → /blog/ 与 /posts/<slug>/
+ *   存档（archive/）  → /archive/ 与 /archive/<slug>/
  */
 
 const WEEK = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
@@ -20,9 +24,8 @@ export function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
-const enc = (p) => p.split('/').map((seg) => encodeURIComponent(seg)).join('/');
-
 export const postUrl = (p) => `/posts/${p.slug}/`;
+export const archiveUrl = (a) => `/archive/${a.slug}/`;
 export const tagUrl = (t) => `/tags/${encodeURIComponent(t)}/`;
 
 /* ------------------------------------------------------------------ *
@@ -56,18 +59,31 @@ function header(config, active) {
 }
 
 function sidebar(ctx) {
-  const { config, tags, years, posts } = ctx;
+  const { config, tags, posts, archive, archiveYears } = ctx;
   const limit = config.sidebar?.tagLimit ?? 8;
   const topTags = tags.slice(0, limit);
+
   const tagList = topTags
     .map(
       (t) =>
         `<li><a href="${tagUrl(t.name)}"><span>${esc(t.name)}</span><em>${t.count}</em></a></li>`
     )
     .join('\n          ');
-  const yearList = years
-    .map((y) => `<li><a href="/archives/"><span>${y.year}</span><em>${y.count}</em></a></li>`)
-    .join('\n          ');
+
+  const shelfWidget = archive.length
+    ? `<section class="widget">
+        <h2 class="widget-title">存档</h2>
+        <ul class="mini-list">
+          ${archiveYears
+            .map(
+              (y) =>
+                `<li><a href="/archive/"><span>${y.year}</span><em>${y.count}</em></a></li>`
+            )
+            .join('\n          ')}
+        </ul>
+        <p class="widget-link"><a href="/archive/">全部存档 →</a></p>
+      </section>`
+    : '';
 
   return `<aside class="sidebar" aria-label="侧栏">
       <section class="widget">
@@ -75,22 +91,21 @@ function sidebar(ctx) {
         <p class="widget-text">${esc(config.sidebar?.about || config.description)}</p>
         <p class="widget-link"><a href="/about/">了解更多 →</a></p>
       </section>
-      <section class="widget">
+      ${
+        topTags.length
+          ? `<section class="widget">
         <h2 class="widget-title">标签</h2>
         <ul class="mini-list">
           ${tagList}
         </ul>
         <p class="widget-link"><a href="/tags/">全部标签 →</a></p>
-      </section>
-      <section class="widget">
-        <h2 class="widget-title">归档</h2>
-        <ul class="mini-list">
-          ${yearList}
-        </ul>
-      </section>
+      </section>`
+          : ''
+      }
+      ${shelfWidget}
       <section class="widget widget-sub">
         <p class="widget-text">订阅：<a href="/feed.xml">RSS</a>　·　<a href="/search/">搜索</a></p>
-        <p class="widget-text widget-muted">共 ${posts.length} 篇</p>
+        <p class="widget-text widget-muted">随笔 ${posts.length} 篇　·　存档 ${archive.length} 篇</p>
       </section>
     </aside>`;
 }
@@ -100,7 +115,7 @@ function footer(config) {
   return `<footer class="site-footer">
     <div class="wrap footer-inner">
       <p class="copyright">© ${year} ${esc(config.author || config.title)}</p>
-      <p class="footer-links"><a href="/feed.xml">RSS</a><span>/</span><a href="/archives/">归档</a><span>/</span><a href="/about/">关于</a></p>
+      <p class="footer-links"><a href="/feed.xml">RSS</a><span>/</span><a href="/archive/">存档</a><span>/</span><a href="/about/">关于我</a></p>
       <p class="colophon">${esc(config.footer || '')}</p>
     </div>
   </footer>`;
@@ -110,7 +125,8 @@ export function layout(ctx, { title, description, body, active, path, pageTitle 
   const { config } = ctx;
   const fullTitle = title ? `${title} · ${config.title}` : `${config.title} · ${config.tagline}`;
   const desc = description || config.description;
-  const canonical = config.url && !/example\.com/.test(config.url) ? config.url.replace(/\/$/, '') + path : '';
+  const canonical =
+    config.url && !/example\.com/.test(config.url) ? config.url.replace(/\/$/, '') + path : '';
 
   return `<!doctype html>
 <html lang="${config.lang || 'zh-CN'}" data-theme="light">
@@ -137,7 +153,7 @@ export function layout(ctx, { title, description, body, active, path, pageTitle 
       <main id="main" class="content">
 ${body}
       </main>
-      ${ctx.withSidebar === false ? '' : sidebar(ctx)}
+      ${sidebar(ctx)}
     </div>
   </div>
   ${footer(config)}
@@ -151,12 +167,26 @@ ${body}
  * 零件
  * ------------------------------------------------------------------ */
 
-function entry(ctx, post) {
+/** 随笔卡片 */
+function entry(post) {
   return `        <article class="entry">
           <h2 class="entry-title"><a href="${postUrl(post)}">${esc(post.title)}</a></h2>
           <p class="entry-meta"><time datetime="${fmtISO(post.date)}">${fmtShort(post.date)}</time><span class="sep">/</span>${weekday(post.date)}<span class="sep">/</span>约 ${post.minutes} 分钟</p>
           <p class="entry-summary">${esc(post.summary)}</p>
         </article>`;
+}
+
+/** 存档条目（日期 / 标题 / 作者） */
+function shelfRow(item) {
+  return `          <li>
+            <time datetime="${fmtISO(item.date)}">${pad(item.date.getMonth() + 1)}.${pad(item.date.getDate())}</time>
+            <a href="${archiveUrl(item)}">${esc(item.title)}</a>
+            <span class="archive-len">${esc(item.author || '佚名')}</span>
+          </li>`;
+}
+
+function emptyState(text) {
+  return `        <p class="empty">${esc(text)}</p>`;
 }
 
 function pageHead(title, desc) {
@@ -188,10 +218,10 @@ function pager(current, total) {
  * ------------------------------------------------------------------ */
 
 export function homePage(ctx) {
-  const { config, posts } = ctx;
+  const { config, posts, archive } = ctx;
   const hero = config.hero || {};
   const titleLines = String(hero.title || '').split('\n').map(esc).join('<br>');
-  const latest = posts.slice(0, 5).map((p) => entry(ctx, p)).join('\n\n');
+
   const nowRows = (config.now || [])
     .map(
       (row) => `            <div class="now-row">
@@ -201,6 +231,15 @@ export function homePage(ctx) {
     )
     .join('\n');
 
+  const latest = posts.length
+    ? posts.slice(0, 5).map((p) => entry(p)).join('\n\n')
+    : emptyState('还没有开始写。第一篇总会有点难，但写下来就好了。');
+
+  const shelf = archive.length
+    ? `<ol class="archive-list">
+${archive.slice(0, 4).map((a) => shelfRow(a)).join('\n')}
+          </ol>`
+    : emptyState('还没有收藏任何东西。读到好的，就放进来。');
   const body = `        <section class="hero">
           <p class="hero-kicker">${esc(hero.kicker || '')}</p>
           <h1 class="hero-title">${titleLines}</h1>
@@ -218,10 +257,18 @@ ${nowRows}
 
         <section class="block">
           <div class="section-head">
-            <h2 class="section-title">最近写下</h2>
-            <a class="section-more" href="/blog/">全部日志 →</a>
+            <h2 class="section-title">最近文章</h2>
+            <a class="section-more" href="/blog/">全部文章 →</a>
           </div>
 ${latest}
+        </section>
+
+        <section class="block">
+          <div class="section-head">
+            <h2 class="section-title">最近存档</h2>
+            <a class="section-more" href="/archive/">全部存档 →</a>
+          </div>
+${shelf}
         </section>`;
 
   return layout(ctx, { body, active: '/', path: '/', pageTitle: 'website' });
@@ -231,20 +278,21 @@ export function listPage(ctx, page, totalPages) {
   const { posts, config } = ctx;
   const perPage = config.perPage || 8;
   const slice = posts.slice((page - 1) * perPage, page * perPage);
-  const entries = slice.map((p) => entry(ctx, p)).join('\n\n');
-  const desc =
-    page === 1
-      ? `所有日志，共 ${posts.length} 篇。`
-      : `所有日志，第 ${page} 页。`;
 
-  const body = `${pageHead('日志', desc)}
-${entries}
+  const desc = posts.length
+    ? page === 1
+      ? `随笔，共 ${posts.length} 篇。`
+      : `随笔，第 ${page} 页。`
+    : '随笔与日常，慢慢写。';
+
+  const body = `${pageHead('最近文章', desc)}
+${slice.length ? slice.map((p) => entry(p)).join('\n\n') : emptyState('这里还空着。')}
 ${pager(page, totalPages)}`;
 
   return layout(ctx, {
     body,
     active: '/blog/',
-    title: page === 1 ? '日志' : `日志 · 第 ${page} 页`,
+    title: page === 1 ? '最近文章' : `最近文章 · 第 ${page} 页`,
     path: page === 1 ? '/blog/' : `/blog/page/${page}/`,
     pageTitle: 'website',
   });
@@ -264,6 +312,13 @@ export function postPage(ctx, post, prev, next) {
       : '<span class="post-nav-item is-empty"></span>',
   ].join('\n            ');
 
+  const navBlock =
+    prev || next
+      ? `<nav class="post-nav" aria-label="相邻文章">
+            ${pagerHtml}
+            </nav>`
+      : '';
+
   const body = `        <article class="post">
           <header class="post-head">
             <h1 class="post-title">${esc(post.title)}</h1>
@@ -281,10 +336,8 @@ ${post.html}
           <footer class="post-foot">
             ${tags ? `<div class="post-tags">${tags}</div>` : ''}
             <p class="post-sign">写于 ${fmtLong(post.date)}</p>
-            <nav class="post-nav" aria-label="相邻文章">
-            ${pagerHtml}
-            </nav>
-            <p class="post-back"><a href="/blog/">← 回到日志</a></p>
+            ${navBlock}
+            <p class="post-back"><a href="/blog/">← 回到最近文章</a></p>
           </footer>
         </article>`;
 
@@ -299,86 +352,157 @@ ${post.html}
 }
 
 export function archivePage(ctx) {
-  const { posts } = ctx;
-  const groups = new Map();
-  for (const p of posts) {
-    const y = p.date.getFullYear();
-    if (!groups.has(y)) groups.set(y, []);
-    groups.get(y).push(p);
+  const { archive } = ctx;
+
+  const desc = archive.length
+    ? `读到并想留住的东西，共 ${archive.length} 篇。`
+    : '读到好的，就放进来。';
+
+  const body = `${pageHead('存档', desc)}
+${
+  archive.length
+    ? `        <ol class="archive-list">
+${archive.map((a) => shelfRow(a)).join('\n')}
+        </ol>`
+    : emptyState('书架还空着。慢慢添。')
+}`;
+
+  return layout(ctx, {
+    body,
+    active: '/archive/',
+    title: '存档',
+    path: '/archive/',
+    pageTitle: 'website',
+  });
+}
+
+export function archiveItemPage(ctx, item, prev, next) {
+  const tags = item.tags
+    .map((t) => `<a href="${tagUrl(t)}" class="pill">${esc(t)}</a>`)
+    .join('');
+
+  const meta = `${fmtShort(item.date)} 收藏`;
+
+  const bodyHtml = item.html
+    ? `          <div class="post-body">
+${item.html}
+          </div>`
+    : '';
+
+  let source = '';
+  if (item.source) {
+    let label = item.source;
+    try {
+      label = new URL(item.source).hostname.replace(/^www\./, '');
+    } catch {}
+    source = `<p class="source">原文：<a href="${esc(item.source)}" target="_blank" rel="noopener">${esc(
+      label
+    )} ↗</a></p>`;
   }
 
-  const years = [...groups.keys()].sort((a, b) => b - a);
-  const blocks = years
-    .map((year) => {
-      const items = groups.get(year);
-      const rows = items
-        .map(
-          (p) => `            <li>
-              <time datetime="${fmtISO(p.date)}">${pad(p.date.getMonth() + 1)}.${pad(p.date.getDate())}</time>
-              <a href="${postUrl(p)}">${esc(p.title)}</a>
-              <span class="archive-len">${p.minutes} 分钟</span>
-            </li>`
-        )
-        .join('\n');
+  const pagerHtml = [
+    prev
+      ? `<a class="post-nav-item is-prev" href="${archiveUrl(prev)}"><span class="post-nav-label">← 前一篇</span><span class="post-nav-title">${esc(prev.title)}</span></a>`
+      : '<span class="post-nav-item is-empty"></span>',
+    next
+      ? `<a class="post-nav-item is-next" href="${archiveUrl(next)}"><span class="post-nav-label">后一篇 →</span><span class="post-nav-title">${esc(next.title)}</span></a>`
+      : '<span class="post-nav-item is-empty"></span>',
+  ].join('\n            ');
 
-      return `          <section class="archive-year">
-            <h2 class="archive-year-title">${year}<span class="archive-count">${items.length} 篇</span></h2>
-            <ol class="archive-list">
-${rows}
-            </ol>
-          </section>`;
-    })
-    .join('\n');
+  const navBlock =
+    prev || next
+      ? `<nav class="post-nav" aria-label="相邻存档">
+            ${pagerHtml}
+            </nav>`
+      : '';
 
-  const first = posts[posts.length - 1];
-  const desc = `从 ${first.date.getFullYear()} 年 ${first.date.getMonth() + 1} 月到现在，共 ${posts.length} 篇。`;
-  const body = `${pageHead('归档', desc)}
-        <div class="archive">
-${blocks}
-        </div>`;
+  const body = `        <article class="post post-archive">
+          <header class="post-head">
+            <p class="post-kicker">存档${item.author ? ` · ${esc(item.author)}` : ''}</p>
+            <h1 class="post-title">${esc(item.title)}</h1>
+            <p class="post-meta">${meta}</p>
+          </header>
 
-  return layout(ctx, { body, active: '/archives/', title: '归档', path: '/archives/' });
+${bodyHtml}
+          <footer class="post-foot">
+            ${source}
+            ${tags ? `<div class="post-tags">${tags}</div>` : ''}
+            ${navBlock}
+            <p class="post-back"><a href="/archive/">← 回到存档</a></p>
+          </footer>
+        </article>`;
+
+  return layout(ctx, {
+    body,
+    active: '/archive/',
+    title: item.title,
+    description: item.summary,
+    path: archiveUrl(item),
+    pageTitle: 'article',
+  });
 }
 
 export function tagsPage(ctx) {
   const { tags } = ctx;
-  const max = Math.max(...tags.map((t) => t.count), 1);
-  const list = tags
-    .map((t) => {
-      const weight = 1 + Math.round((t.count / max) * 3); // 1..4，用于字号分级
-      return `<li class="tag-item" data-weight="${weight}"><a href="${tagUrl(t.name)}">${esc(
-        t.name
-      )}<span class="tag-count">${t.count}</span></a></li>`;
-    })
-    .join('\n          ');
 
-  const body = `${pageHead('标签', '写到过的一些词，越大的写得越多。')}
-        <ul class="tag-cloud">
-          ${list}
-        </ul>`;
+  const body = `${pageHead('标签', '写到过、也收藏过的一些词。')}
+${
+  tags.length
+    ? `        <ul class="tag-cloud">
+${tags
+  .map(
+    (t) =>
+      `          <li class="tag-item"><a href="${tagUrl(t.name)}">${esc(t.name)}<span class="tag-count">${t.count}</span></a></li>`
+  )
+  .join('\n')}
+        </ul>`
+    : emptyState('还没有标签。')
+}`;
 
   return layout(ctx, { body, active: '/tags/', title: '标签', path: '/tags/' });
 }
 
-export function tagPostPage(ctx, tag, list) {
-  const entries = list.map((p) => entry(ctx, p)).join('\n\n');
-  const body = `${pageHead(`# ${tag}`, `关于「${tag}」的 ${list.length} 篇。`)}
-${entries}
+export function tagPostPage(ctx, tag, essays, items) {
+  const parts = [];
+
+  if (essays.length) {
+    parts.push(`        <section class="block">
+          <div class="section-head">
+            <h2 class="section-title">随笔</h2>
+          </div>
+${essays.map((p) => entry(p)).join('\n\n')}
+        </section>`);
+  }
+
+  if (items.length) {
+    parts.push(`        <section class="block">
+          <div class="section-head">
+            <h2 class="section-title">存档</h2>
+          </div>
+          <ol class="archive-list">
+${items.map((a) => shelfRow(a)).join('\n')}
+          </ol>
+        </section>`);
+  }
+
+  const total = essays.length + items.length;
+  const body = `${pageHead(`# ${tag}`, `关于「${tag}」的 ${total} 条。`)}
+${parts.join('\n\n')}
         <p class="post-back"><a href="/tags/">← 全部标签</a></p>`;
 
   return layout(ctx, {
     body,
     active: '/tags/',
     title: `# ${tag}`,
-    description: `关于「${tag}」的文章`,
+    description: `关于「${tag}」的内容`,
     path: tagUrl(tag),
   });
 }
 
 export function searchPage(ctx) {
-  const body = `${pageHead('找一找', '输入关键词，翻一翻以前写下的东西。')}
+  const body = `${pageHead('找一找', '输入关键词，翻一翻文章和存档。')}
         <div class="search-box">
-          <input id="search-input" type="search" placeholder="比如：秋天、读书、妈妈……" autocomplete="off" aria-label="搜索">
+          <input id="search-input" type="search" placeholder="比如：秋天、读书、罗素……" autocomplete="off" aria-label="搜索">
           <span class="search-hint">按 <kbd>/</kbd> 开始</span>
         </div>
         <ul id="search-results" class="search-results"></ul>
@@ -390,14 +514,14 @@ export function searchPage(ctx) {
 export function aboutPage(ctx, html) {
   const body = `        <article class="post post-about">
           <header class="post-head">
-            <h1 class="post-title">关于</h1>
+            <h1 class="post-title">关于我</h1>
           </header>
           <div class="post-body">
 ${html}
           </div>
         </article>`;
 
-  return layout(ctx, { body, active: '/about/', title: '关于', path: '/about/' });
+  return layout(ctx, { body, active: '/about/', title: '关于我', path: '/about/' });
 }
 
 export function notFoundPage(ctx) {
@@ -405,5 +529,3 @@ export function notFoundPage(ctx) {
         <p class="post-back"><a href="/">← 回到首页</a></p>`;
   return layout(ctx, { body, active: '', title: '找不到页面', path: '/404.html' });
 }
-
-export { enc };
