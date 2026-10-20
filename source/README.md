@@ -267,7 +267,9 @@ node src/publish.mjs         # 生成并发布
 | `hero.note` | 首页那段说明 |
 | `now` | 首页「近来」三行：在做 / 在想 / 在读 |
 | `nav` | 顶部导航（label 文字 + href 链接） |
-| `sidebar.about` | 右侧栏「关于」那段话 |
+| `sidebar.position` | 侧栏在左还是右：`"left"` 或 `"right"` |
+| `sidebar.avatar` | 头像图片路径，例如 `/assets/img/avatar.jpg`（删掉这行就不显示头像） |
+| `sidebar.about` | 侧栏「关于」那段话 |
 | `sidebar.tagLimit` | 侧栏显示几个标签 |
 | `footer` | 页脚版权说明 |
 
