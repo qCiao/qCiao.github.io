@@ -1,12 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
   <title type="text">qCiao</title>
-  <subtitle type="text">日子慢慢过，心事慢慢写</subtitle>
+  <subtitle type="text"></subtitle>
   <link href="https://qciao.github.io/feed.xml" rel="self" type="application/atom+xml"/>
   <link href="https://qciao.github.io/" rel="alternate" type="text/html"/>
   <id>https://qciao.github.io/</id>
-  <updated>2026-10-20T22:54:00+08:00</updated>
+  <updated>2026-09-03T00:05:00+08:00</updated>
   <author><name>qCiao</name></author>
   <generator>blog/src/build.mjs</generator>
-
+  <entry>
+    <title type="text">后守得云开见月明</title>
+    <link href="https://qciao.github.io/posts/守得云开见月明/" rel="alternate" type="text/html"/>
+    <id>https://qciao.github.io/posts/守得云开见月明/</id>
+    <published>2026-09-03T00:05:00+08:00</published>
+    <updated>2026-09-03T00:05:00+08:00</updated>
+    <author><name>qCiao</name></author>
+    <summary type="text">又一次早睡失败。 暑假把日常的节律打散了，时间变得黏稠，让我对世界的的感知变得迟钝。我不再像之前那样经常思考，也慢慢忘记了曾经的许多念想。这让我愈发对自己感到厌烦。不安的感觉慢慢盖过了我的迟钝。混沌的想法逐渐形成了，越来……</summary>
+    <content type="html">&lt;p&gt;又一次早睡失败。&lt;/p&gt;
+&lt;p&gt;暑假把日常的节律打散了，时间变得黏稠，让我对世界的的感知变得迟钝。我不再像之前那样经常思考，也慢慢忘记了曾经的许多念想。这让我愈发对自己感到厌烦。不安的感觉慢慢盖过了我的迟钝。混沌的想法逐渐形成了，越来越多。&lt;/p&gt;
+&lt;p&gt;我究竟是个什么样的人呢？大学会改变我吗？&lt;/p&gt;
+&lt;p&gt;我敏感自卑，虚伪又胆小。似乎对于自己的评价，坏词往往比好词更容易想出来，一直都是如此。看看曾经的那些自洽，也变得有些脆弱虚假了。前几天听完那期播客，让我彻底的意识到，自己永远无法全面的认识自己。每个阶段都有它的局限性。但就在那生活中的一瞬，你突然能打破那些局限性。播客、书籍、电影、朋友……打破局限的这些时刻，才是成长的具体化。&lt;/p&gt;
+&lt;p&gt;所以，我不再执着于询问“我究竟是个什么样的人”。人不是一件需要被完全定义的物品，是一个过程。&lt;/p&gt;
+&lt;p&gt;人无完人。我不再去想象理想化的自己，也不再去理想化别人。&lt;/p&gt;
+&lt;p&gt;一切都不会按照心意走。&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title type="text">遇见我</title>
+    <link href="https://qciao.github.io/posts/遇见我/" rel="alternate" type="text/html"/>
+    <id>https://qciao.github.io/posts/遇见我/</id>
+    <published>2025-10-02T02:27:00+08:00</published>
+    <updated>2025-10-02T02:27:00+08:00</updated>
+    <author><name>qCiao</name></author>
+    <summary type="text">故弄玄虚大概是青少年时期的特点吧，其实根本没人想知道你浅薄的见解。 半夜翻看自己过去留下的痕迹，确实幼稚，也确实有些“强说愁”。看待事物过于片面，却又喜欢输出观点，简直是个小老灯。 尴尬是真的，但如今的许多习惯也正是从那……</summary>
+    <content type="html">&lt;p&gt;故弄玄虚大概是青少年时期的特点吧，其实根本没人想知道你浅薄的见解。半夜翻看自己过去留下的痕迹，确实幼稚，也确实有些“强说愁”。看待事物过于片面，却又喜欢输出观点，简直是个小老灯。尴尬是真的，但如今的许多习惯也正是从那时残留下来的，对于一些事的观点我依旧没有改变，只不过不再那样稚嫩。&lt;/p&gt;
+&lt;p&gt;前段时间听到过鲁豫说过一句话“我们要正视并承认自己的优点”。这对现在处于深度自我怀疑，甚至于有些讨厌自己的我来说，简直像是急救药。我几度把自己形容成白开水。我不够坏，也不够好，没有什么方面很突出，就是一个温吞的人，是那种大家很难记住的人。听过这句话之后，就开始仔细思考自己的优点。我善良温柔，会察觉到身边人细微的情绪变化；我对情感敏锐，很有共情能力；我有理想，并且付出行动；我会去思考未来，规划未来……  这样做真的会给自己力量，承认自己，其实很重要。于是我也开始理解，过去的我其实并不那样不堪，现在的我也不差。&lt;/p&gt;
+&lt;p&gt;不被人记住又如何。曾经，对于合群这件事情有过很深的执念。往回追溯，这执念是在小学时期开始形成的。那个年纪的孩子其实没有明辨是非的能力，老师又代表了那样至高无上的权威，孩子们很容易就会被老师牵着鼻子走。我小学被孤立，就是因为老师明里暗里的话，也实在不愿去回想那段我去努力合群的日子，怕别人觉得我特殊，我很怪。（讨好型人格的苗头）现在，却是已经与自己和解了，变得专注于自己，淡视他人。 有时也会想，现在的自己好像是走向了另一个极端。由于环境的原因，我几乎没有社交，也不屑于和身边的人社交，微信也只有家人的消息。我变得过度原子化，很舒服，虽然偶尔会被孤独感淹没，但与其让我合群于一些我不喜欢的人，我愿这样孤独下去。&lt;/p&gt;
+&lt;p&gt;内心深处依旧渴望着生活能发生变数，所以把这些希望赋予给大学，期待着它能打破我现在的处境。也许给它赋予了太多太多意义了……但我仍愿去相信。&lt;/p&gt;
+&lt;p&gt;写到这，往回看，我真的很矛盾。爱审视他人，也爱审视自己。&lt;/p&gt;
+&lt;p&gt;挺烦人的吧&lt;/p&gt;
+&lt;p&gt;也行，可能成长就是在不断的怀疑和矛盾中发生的。&lt;/p&gt;</content>
+  </entry>
 </feed>

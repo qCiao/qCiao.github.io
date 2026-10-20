@@ -1,20 +1,20 @@
 {
   "title": "qCiao",
-  "tagline": "日子慢慢过，心事慢慢写",
+  "tagline": "",
   "author": "qCiao",
   "description": "qCiao 的私人笔记：一些随笔，和读到的好文章。",
   "url": "https://qciao.github.io",
   "lang": "zh-CN",
   "perPage": 8,
   "hero": {
-    "kicker": "二〇二六年 · 秋",
+    "kicker": "",
     "lead": "这里是我的私人笔记。",
-    "note": "写一些日常、一点读书，和走路时冒出来的念头；读到好的文章，也收进存档里。更新不勤，但都是真的。"
+    "note": "一些日常，随笔和读到的好文章"
   },
   "now": [
-    { "label": "在做", "text": "把一天分成两半：上午写字，下午出门。" },
-    { "label": "在想", "text": "人是不是非得有用，才值得被记住。" },
-    { "label": "在读", "text": "《山月记》——中岛敦" }
+    { "label": "在做", "text": "python · 四级。" },
+    { "label": "在想", "text": "独处与社交的平衡，尽可能减少社交时间" },
+    { "label": "在读", "text": "《暗处的女儿》——[意大利] 埃莱娜·费兰特" }
   ],
   "nav": [
     { "label": "最近文章", "href": "/blog/" },
@@ -25,7 +25,7 @@
   "sidebar": {
     "position": "right",
     "avatar": "/assets/img/avatar.jpg",
-    "about": "一个普通的写作者。这里放一些没地方放的句子。",
+    "about": "当我诉说黑暗时，不是在投降\n而是在用语言编织绳梯\n好攀上自己灵魂的瞭望塔\n所有未杀死我的杂音\n都将成为凯旋门上的浮雕\n",
     "tagLimit": 8
   },
   "footer": "文字与照片，未经允许请勿转载。"
