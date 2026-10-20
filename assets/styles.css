@@ -25,7 +25,7 @@
     "Microsoft YaHei", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;
   --mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --wrap: 980px;
+  --wrap: 1200px;
   --side: 220px;
   --gap: 48px;
   color-scheme: light;
@@ -1123,7 +1123,7 @@ kbd {
 }
 
 .heat {
-  --cell: 14px;
+  --cell: 18px;
   --cell-gap: 2px;
   --year-w: 40px;
   --row-gap: 12px;
@@ -1136,7 +1136,6 @@ kbd {
   display: flex;
   align-items: center;
   gap: var(--row-gap);
-  min-width: max-content;
 }
 
 .heat-year {
@@ -1150,13 +1149,16 @@ kbd {
 
 .heat-cells {
   display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
   gap: var(--cell-gap);
 }
 
 .heat-cell {
-  display: inline-block;
-  width: var(--cell);
-  height: var(--cell);
+  flex: 1 1 0;
+  min-width: 3px;
+  max-width: var(--cell);
+  aspect-ratio: 1 / 1;
   border-radius: 1px;
   background: var(--heat-0);
 }
@@ -1193,8 +1195,10 @@ kbd {
 }
 
 .heat-legend .heat-cell {
+  flex: 0 0 10px;
   width: 10px;
   height: 10px;
+  aspect-ratio: auto;
 }
 
 .heat-legend span {
