@@ -104,12 +104,13 @@ blog/
 
 ## 五、发布是怎么工作的
 
-- `main` 分支存的是**源码**（你写的 Markdown、配置、脚本）
-- `gh-pages` 分支存的是**生成好的网页**
-- GitHub Pages 指向 `gh-pages`，所以 https://qciao.github.io/ 打开的是生成的网页
+GitHub 仓库 **[qCiao/qCiao.github.io](https://github.com/qCiao/qCiao.github.io)** 里：
 
-`发布.cmd` 会自动做完：生成 → 提交源码到 `main` → 把 `dist/` 推到 `gh-pages`。
-推送用的是你本机 `gh` 的登录状态，不需要输密码。
+- **根目录**：生成好的网页（`index.html`、`blog/`、`posts/`、`assets/`……），Pages 直接托管这里
+- **`source/`**：源码（Markdown、配置、样式、脚本），也就是你这台电脑上的这份
+
+`发布.cmd` 会自动做完：生成 → 把「网页 + 源码」一次性提交到 `main`。
+它走的是 GitHub API，用的是你本机 `gh` 的登录状态，**不需要装 git，也不会弹窗要密码**。
 
 如果发布后刷新看不到变化：等一分钟再强刷（Ctrl+F5），GitHub 有时会慢几十秒。
 
