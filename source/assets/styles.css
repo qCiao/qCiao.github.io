@@ -231,6 +231,18 @@ img {
   min-width: 0;
 }
 
+.layout.is-left {
+  grid-template-columns: var(--side) minmax(0, 1fr);
+}
+
+.layout.is-left .sidebar {
+  order: -1;
+  padding-left: 0;
+  padding-right: 30px;
+  border-left: 0;
+  border-right: 1px solid var(--line);
+}
+
 /* --------------------------------------------------------------- 首页 */
 
 .intro {
@@ -936,6 +948,17 @@ kbd {
   margin-bottom: 34px;
 }
 
+.avatar {
+  display: block;
+  width: 84px;
+  height: 84px;
+  margin: 0 0 18px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  object-fit: cover;
+}
+
 .widget:last-child {
   margin-bottom: 0;
 }
@@ -1217,7 +1240,8 @@ kbd {
 }
 
 @media (max-width: 860px) {
-  .layout {
+  .layout,
+  .layout.is-left {
     grid-template-columns: minmax(0, 1fr);
     padding-top: 38px;
   }

@@ -70,6 +70,10 @@ function sidebar(ctx) {
     )
     .join('\n          ');
 
+  const avatar = config.sidebar?.avatar
+    ? `<img class="avatar" src="${config.sidebar.avatar}" alt="${esc(config.title)}" width="84" height="84" loading="lazy">`
+    : '';
+
   const shelfWidget = archive.length
     ? `<section class="widget">
         <h2 class="widget-title">存档</h2>
@@ -86,7 +90,8 @@ function sidebar(ctx) {
     : '';
 
   return `<aside class="sidebar" aria-label="侧栏">
-      <section class="widget">
+      <section class="widget widget-about">
+        ${avatar}
         <h2 class="widget-title">关于</h2>
         <p class="widget-text">${esc(config.sidebar?.about || config.description)}</p>
         <p class="widget-link"><a href="/about/">了解更多 →</a></p>
@@ -149,7 +154,7 @@ export function layout(ctx, { title, description, body, active, path, pageTitle 
   <a class="skip-link" href="#main">跳到正文</a>
   ${header(config, active)}
   <div class="wrap">
-    <div class="layout">
+    <div class="layout${config.sidebar?.position === 'left' ? ' is-left' : ''}">
       <main id="main" class="content">
 ${body}
       </main>
