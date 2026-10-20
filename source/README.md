@@ -340,6 +340,9 @@ html[data-theme="dark"] { ... }
 **改完发布，线上还是旧的？**
 先等 1～2 分钟，再 `Ctrl + F5`。GitHub Pages 的 CDN 有缓存，通常几十秒。
 
+改了样式（`styles.css`）看不到变化时，多按一次 `Ctrl + Shift + R` 强制刷新。
+页面里引用样式和脚本的地址带内容指纹（`styles.css?v=3f9a21c4`），内容一变地址就变，浏览器会重新下载——正常情况下刷新一次就生效。
+
 **双击 `发布.cmd` 报错？**
 - 提示 `authentication` / `找不到 GitHub 登录信息` → 在 PowerShell 里运行 `gh auth login`
 - 提示 JSON 报错 → `site.config.json` 被改坏了，看它说的行号，多半是少了引号或逗号

@@ -7,6 +7,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { renderMarkdown, plainExcerpt, readingTime } from './markdown.mjs';
 import * as T from './templates.mjs';
@@ -173,6 +174,13 @@ function buildHeatmap(posts, now = new Date()) {
 
 /* ------------------------------- 写文件 ------------------------------- */
 
+/** 给样式和脚本加内容指纹，改了内容网址就变，避免浏览器拿旧缓存 */
+function assetHash(relPath) {
+  const file = path.join(root, relPath);
+  if (!fs.existsSync(file)) return '0';
+  return crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
+}
+
 function write(relPath, content) {
   const target = path.join(dist, relPath);
   fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -215,7 +223,18 @@ const archiveYears = [...yearCount.entries()]
   .map(([year, count]) => ({ year, count }))
   .sort((a, b) => b.year - a.year);
 
-const ctx = { config, posts, archive, tags, archiveYears, heat: buildHeatmap(posts) };
+const ctx = {
+  config,
+  posts,
+  archive,
+  tags,
+  archiveYears,
+  heat: buildHeatmap(posts),
+  assets: {
+    css: `/assets/styles.css?v=${assetHash('assets/styles.css')}`,
+    js: `/assets/app.js?v=${assetHash('assets/app.js')}`,
+  },
+};
 
 if (fs.existsSync(dist)) fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });

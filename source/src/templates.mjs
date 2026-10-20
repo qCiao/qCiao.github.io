@@ -145,7 +145,7 @@ export function layout(ctx, { title, description, body, active, path, pageTitle 
   <meta property="og:description" content="${esc(desc)}">
   <meta property="og:type" content="${pageTitle || 'website'}">
   ${canonical ? `<link rel="canonical" href="${esc(canonical)}">` : ''}
-  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="${ctx.assets?.css || '/assets/styles.css'}">
   <link rel="alternate" type="application/atom+xml" title="${esc(config.title)}" href="/feed.xml">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <script>(function(){try{var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
@@ -163,7 +163,7 @@ ${body}
   </div>
   ${heatBand(ctx)}
   ${footer(config)}
-  <script src="/assets/app.js" defer></script>
+  <script src="${ctx.assets?.js || '/assets/app.js'}" defer></script>
 </body>
 </html>
 `;
