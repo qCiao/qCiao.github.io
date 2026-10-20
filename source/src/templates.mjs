@@ -156,6 +156,7 @@ ${body}
       ${sidebar(ctx)}
     </div>
   </div>
+  ${heatBand(ctx)}
   ${footer(config)}
   <script src="/assets/app.js" defer></script>
 </body>
@@ -195,9 +196,9 @@ function emptyState(text) {
   return `        <p class="empty">${esc(text)}</p>`;
 }
 
-/** 写作热力图：一年一行，一格一周 */
-function heatmap(ctx) {
-  const { heat, posts } = ctx;
+/** 写作热力图：一年一行，一格一周（放在页面最底部） */
+function heatBand(ctx) {
+  const { heat } = ctx;
   if (!heat || !heat.length) return '';
 
   const cell = (c) =>
@@ -207,36 +208,28 @@ function heatmap(ctx) {
 
   const rows = heat
     .map(
-      (row) => `          <div class="heat-row">
-            <span class="heat-year">${row.year}</span>
-            <div class="heat-cells">${row.cells.map(cell).join('')}</div>
-          </div>`
+      (row) => `        <div class="heat-row">
+          <span class="heat-year">${row.year}</span>
+          <div class="heat-cells">${row.cells.map(cell).join('')}</div>
+        </div>`
     )
     .join('\n');
 
-  const monthStartDays = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-  const axis = monthStartDays
-    .map((days, index) => {
-      const weeks = Math.floor(days / 7);
-      return `<span style="left:calc((var(--cell) + var(--cell-gap)) * ${weeks})">${index + 1}月</span>`;
-    })
+  const legend = [0, 1, 2, 3, 4]
+    .map((level) => `<i class="heat-cell l${level}"></i><span>${level === 4 ? '4+' : level}</span>`)
     .join('');
 
-  return `        <section class="block heatmap-block">
-          <div class="section-head">
-            <h2 class="section-title">写作记录</h2>
-            <span class="heat-legend"><span>少</span><i class="heat-cell l0"></i><i class="heat-cell l1"></i><i class="heat-cell l2"></i><i class="heat-cell l3"></i><i class="heat-cell l4"></i><span>多</span></span>
-          </div>
-          <div class="heat">
-          <div class="heat-axis">${axis}</div>
+  return `    <div class="wrap">
+      <section class="heat-band" aria-label="写作记录">
+        <div class="heat-head">
+          <h2 class="heat-title">写作记录</h2>
+          <span class="heat-legend">${legend}</span>
+        </div>
+        <div class="heat">
 ${rows}
-          </div>
-          <p class="heat-note">${
-            posts.length
-              ? `每一格是一周，颜色越深写得越多。共 ${posts.length} 篇。`
-              : '今年还没有写过。第一篇文章出现后，这里就会开始长格子。'
-          }</p>
-        </section>`;
+        </div>
+      </section>
+    </div>`;
 }
 
 function pageHead(title, desc) {
@@ -336,7 +329,6 @@ export function listPage(ctx, page, totalPages) {
     : '随笔与日常，慢慢写。';
 
   const body = `${pageHead('最近文章', desc)}
-${page === 1 ? heatmap(ctx) : ''}
 ${slice.length ? slice.map((p) => entry(p)).join('\n\n') : emptyState('这里还空着。')}
 ${pager(page, totalPages)}`;
 

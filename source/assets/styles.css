@@ -13,11 +13,11 @@
   --line-2: #ece5d7;
   --accent: #2c4557;
   --accent-soft: rgba(44, 69, 87, 0.32);
-  --heat-0: #e9e1d1;
-  --heat-1: #bfd0da;
-  --heat-2: #8fa8b8;
-  --heat-3: #5b7a8e;
-  --heat-4: #2c4557;
+  --heat-0: #f0ece3;
+  --heat-1: #d5cfc3;
+  --heat-2: #a9a294;
+  --heat-3: #6f6a60;
+  --heat-4: #24221f;
   --mark: #f3e2c8;
 
   --serif: Georgia, "Songti SC", "Source Han Serif SC", "Noto Serif SC", SimSun, serif;
@@ -41,11 +41,11 @@ html[data-theme="dark"] {
   --line-2: #26231e;
   --accent: #93b2c9;
   --accent-soft: rgba(147, 178, 201, 0.38);
-  --heat-0: #2a2723;
-  --heat-1: #35454f;
-  --heat-2: #4f6a7a;
-  --heat-3: #7e9caf;
-  --heat-4: #b6cfdf;
+  --heat-0: #262420;
+  --heat-1: #3b3831;
+  --heat-2: #625d53;
+  --heat-3: #9a9387;
+  --heat-4: #e8e2d6;
   --mark: #463322;
   color-scheme: dark;
 }
@@ -1077,35 +1077,37 @@ kbd {
 
 /* --------------------------------------------------------------- 写作热力图 */
 
-.heatmap-block {
-  margin-top: 36px;
+.heat-band {
+  margin-top: 68px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+
+.heat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.heat-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
 }
 
 .heat {
-  --cell: 10px;
-  --cell-gap: 2px;
-  --year-w: 34px;
-  --row-gap: 10px;
+  --cell: 15px;
+  --cell-gap: 3px;
+  --year-w: 40px;
+  --row-gap: 12px;
   display: grid;
-  gap: 5px;
-  padding-top: 14px;
+  gap: 4px;
   overflow-x: auto;
-}
-
-.heat-axis {
-  position: relative;
-  height: 14px;
-  margin-left: calc(var(--year-w) + var(--row-gap));
-}
-
-.heat-axis span {
-  position: absolute;
-  top: 0;
-  font-family: var(--sans);
-  font-size: 10.5px;
-  line-height: 1;
-  color: var(--muted);
-  white-space: nowrap;
 }
 
 .heat-row {
@@ -1119,7 +1121,7 @@ kbd {
   flex: none;
   width: var(--year-w);
   font-family: var(--sans);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1133,7 +1135,7 @@ kbd {
   display: inline-block;
   width: var(--cell);
   height: var(--cell);
-  border-radius: 2px;
+  border-radius: 1px;
   background: var(--heat-0);
 }
 
@@ -1162,27 +1164,19 @@ kbd {
 .heat-legend {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-family: var(--sans);
-  font-size: 11.5px;
+  font-size: 10.5px;
   color: var(--muted);
 }
 
 .heat-legend .heat-cell {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 
 .heat-legend span {
-  margin: 0 2px;
-}
-
-.heat-note {
-  margin: 12px 0 0;
-  font-family: var(--sans);
-  font-size: 12px;
-  line-height: 1.8;
-  color: var(--muted);
+  margin-right: 5px;
 }
 
 /* --------------------------------------------------------------- 空状态 */
@@ -1215,10 +1209,10 @@ kbd {
     display: none;
   }
   .heat {
-    --cell: 8px;
+    --cell: 12px;
     --cell-gap: 2.5px;
-    --year-w: 30px;
-    --row-gap: 8px;
+    --year-w: 36px;
+    --row-gap: 10px;
   }
 }
 
@@ -1372,9 +1366,6 @@ kbd {
     --year-w: 24px;
     --row-gap: 6px;
     gap: 4px;
-  }
-  .heat-axis {
-    display: none;
   }
   .heat-year {
     font-size: 10.5px;
