@@ -1,0 +1,30 @@
+{
+  "title": "qCiao",
+  "tagline": "日子慢慢过，心事慢慢写",
+  "author": "qCiao",
+  "description": "qCiao 的私人笔记：一些日常、一点读书，和走路时冒出来的念头。",
+  "url": "https://qciao.github.io",
+  "lang": "zh-CN",
+  "perPage": 8,
+  "hero": {
+    "kicker": "二〇二六年 · 秋",
+    "title": "把日子写下来，\n它就没有白白过去。",
+    "note": "这里是我的私人笔记。写一些日常、一点读书，和走路时冒出来的念头。更新不勤，但都是真的。"
+  },
+  "now": [
+    { "label": "在做", "text": "把一天分成两半：上午写字，下午出门。" },
+    { "label": "在想", "text": "人是不是非得有用，才值得被记住。" },
+    { "label": "在读", "text": "《山月记》——中岛敦" }
+  ],
+  "nav": [
+    { "label": "日志", "href": "/blog/" },
+    { "label": "归档", "href": "/archives/" },
+    { "label": "标签", "href": "/tags/" },
+    { "label": "关于", "href": "/about/" }
+  ],
+  "sidebar": {
+    "about": "一个普通的写作者。这里放一些没地方放的句子。",
+    "tagLimit": 8
+  },
+  "footer": "文字与照片，未经允许请勿转载。"
+}
