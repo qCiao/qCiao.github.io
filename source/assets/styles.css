@@ -25,7 +25,7 @@
     "Microsoft YaHei", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;
   --mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --wrap: 920px;
+  --wrap: 960px;
   --side: 220px;
   --gap: 48px;
   color-scheme: light;
@@ -1123,7 +1123,7 @@ kbd {
 }
 
 .heat {
-  --cell: 12px;
+  --cell: 13px;
   --cell-gap: 2px;
   --year-w: 40px;
   --row-gap: 12px;
