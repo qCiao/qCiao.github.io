@@ -126,8 +126,8 @@ img {
 
 .brand-name {
   margin: 0;
-  font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  font-size: 39px;
+  font-family: var(--serif);
+  font-size: 38px;
   line-height: 1;
   font-weight: 400;
   letter-spacing: 0;
