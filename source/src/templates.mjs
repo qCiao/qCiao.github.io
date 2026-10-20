@@ -167,21 +167,27 @@ ${body}
  * 零件
  * ------------------------------------------------------------------ */
 
-/** 随笔卡片 */
+/** 随笔条目：左边日期，右边标题与摘要 */
 function entry(post) {
+  const tagLine = post.tags.length
+    ? `<span class="sep">·</span>${post.tags.slice(0, 2).map(esc).join(' / ')}`
+    : '';
   return `        <article class="entry">
-          <h2 class="entry-title"><a href="${postUrl(post)}">${esc(post.title)}</a></h2>
-          <p class="entry-meta"><time datetime="${fmtISO(post.date)}">${fmtShort(post.date)}</time><span class="sep">/</span>${weekday(post.date)}<span class="sep">/</span>约 ${post.minutes} 分钟</p>
-          <p class="entry-summary">${esc(post.summary)}</p>
+          <time class="entry-date" datetime="${fmtISO(post.date)}">${fmtShort(post.date)}</time>
+          <div class="entry-main">
+            <h2 class="entry-title"><a href="${postUrl(post)}">${esc(post.title)}</a></h2>
+            <p class="entry-summary">${esc(post.summary)}</p>
+            <p class="entry-meta">${weekday(post.date)}<span class="sep">·</span>约 ${post.minutes} 分钟${tagLine}</p>
+          </div>
         </article>`;
 }
 
 /** 存档条目（日期 / 标题 / 作者） */
 function shelfRow(item) {
-  return `          <li>
-            <time datetime="${fmtISO(item.date)}">${pad(item.date.getMonth() + 1)}.${pad(item.date.getDate())}</time>
+  return `          <li class="shelf-item">
+            <time datetime="${fmtISO(item.date)}">${fmtShort(item.date)}</time>
             <a href="${archiveUrl(item)}">${esc(item.title)}</a>
-            <span class="archive-len">${esc(item.author || '佚名')}</span>
+            <span class="shelf-author">${esc(item.author || '佚名')}</span>
           </li>`;
 }
 
@@ -220,7 +226,6 @@ function pager(current, total) {
 export function homePage(ctx) {
   const { config, posts, archive } = ctx;
   const hero = config.hero || {};
-  const titleLines = String(hero.title || '').split('\n').map(esc).join('<br>');
 
   const nowRows = (config.now || [])
     .map(
@@ -232,18 +237,19 @@ export function homePage(ctx) {
     .join('\n');
 
   const latest = posts.length
-    ? posts.slice(0, 5).map((p) => entry(p)).join('\n\n')
+    ? posts.slice(0, 5).map((p) => entry(p)).join('\n')
     : emptyState('还没有开始写。第一篇总会有点难，但写下来就好了。');
 
   const shelf = archive.length
-    ? `<ol class="archive-list">
+    ? `<ul class="shelf">
 ${archive.slice(0, 4).map((a) => shelfRow(a)).join('\n')}
-          </ol>`
+        </ul>`
     : emptyState('还没有收藏任何东西。读到好的，就放进来。');
-  const body = `        <section class="hero">
-          <p class="hero-kicker">${esc(hero.kicker || '')}</p>
-          <h1 class="hero-title">${titleLines}</h1>
-          <p class="hero-note">${esc(hero.note || config.description)}</p>
+
+  const body = `        <section class="intro">
+          <p class="intro-kicker">${esc(hero.kicker || '')}</p>
+          <p class="intro-lead">${esc(hero.lead || '')}</p>
+          <p class="intro-text">${esc(hero.note || config.description)}</p>
         </section>
 
         <section class="block">
@@ -321,12 +327,14 @@ export function postPage(ctx, post, prev, next) {
 
   const body = `        <article class="post">
           <header class="post-head">
+            <p class="post-kicker">随笔</p>
             <h1 class="post-title">${esc(post.title)}</h1>
             <p class="post-meta">
-              <time datetime="${fmtISO(post.date)}">${fmtShort(post.date)}</time>
-              <span class="sep">/</span>${weekday(post.date)}
-              <span class="sep">/</span>约 ${post.minutes} 分钟
+              <time datetime="${fmtISO(post.date)}">${fmtLong(post.date)}</time>
+              <span class="sep">·</span>${weekday(post.date)}
+              <span class="sep">·</span>约 ${post.minutes} 分钟
             </p>
+            <span class="post-rule" aria-hidden="true"></span>
           </header>
 
           <div class="post-body">
@@ -361,9 +369,9 @@ export function archivePage(ctx) {
   const body = `${pageHead('存档', desc)}
 ${
   archive.length
-    ? `        <ol class="archive-list">
+    ? `        <ul class="shelf">
 ${archive.map((a) => shelfRow(a)).join('\n')}
-        </ol>`
+        </ul>`
     : emptyState('书架还空着。慢慢添。')
 }`;
 
@@ -421,6 +429,7 @@ ${item.html}
             <p class="post-kicker">存档${item.author ? ` · ${esc(item.author)}` : ''}</p>
             <h1 class="post-title">${esc(item.title)}</h1>
             <p class="post-meta">${meta}</p>
+            <span class="post-rule" aria-hidden="true"></span>
           </header>
 
 ${bodyHtml}
@@ -479,21 +488,25 @@ ${essays.map((p) => entry(p)).join('\n\n')}
           <div class="section-head">
             <h2 class="section-title">存档</h2>
           </div>
-          <ol class="archive-list">
+          <ul class="shelf">
 ${items.map((a) => shelfRow(a)).join('\n')}
-          </ol>
+          </ul>
         </section>`);
   }
 
   const total = essays.length + items.length;
-  const body = `${pageHead(`# ${tag}`, `关于「${tag}」的 ${total} 条。`)}
+  const body = `        <header class="page-head">
+          <p class="post-kicker">标签</p>
+          <h1 class="page-title">${esc(tag)}</h1>
+          <p class="page-desc">关于「${esc(tag)}」的 ${total} 条。</p>
+        </header>
 ${parts.join('\n\n')}
         <p class="post-back"><a href="/tags/">← 全部标签</a></p>`;
 
   return layout(ctx, {
     body,
     active: '/tags/',
-    title: `# ${tag}`,
+    title: tag,
     description: `关于「${tag}」的内容`,
     path: tagUrl(tag),
   });
