@@ -267,13 +267,21 @@ node src/publish.mjs         # 生成并发布
 | `hero.note` | 首页那段说明 |
 | `now` | 首页「近来」三行：在做 / 在想 / 在读 |
 | `nav` | 顶部导航（label 文字 + href 链接） |
-| `sidebar.position` | 侧栏在左还是右：`"left"` 或 `"right"` |
-| `sidebar.avatar` | 头像图片路径，例如 `/assets/img/avatar.jpg`（删掉这行就不显示头像） |
+| `sidebar.position` | 侧栏在左还是右：`"left"` 或 `"right"`（默认右） |
+| `sidebar.avatar` | 侧栏圆形头像的图片路径，例如 `/assets/img/avatar.jpg`（删掉这行就不显示头像） |
 | `sidebar.about` | 侧栏「关于」那段话 |
 | `sidebar.tagLimit` | 侧栏显示几个标签 |
 | `footer` | 页脚版权说明 |
 
 「关于我」页面的正文在 `pages/about.md`，直接改文件。
+
+### 头像
+
+侧栏左上角那个圆形头像就是 `assets/img/avatar.jpg`。
+
+- 换头像：直接用新图**覆盖**这个文件（正方形、300×300 以上最好，压缩到 200KB 以内）
+- 圆形是样式裁的，原图不用自己剪圆，但靠边的内容会被裁掉一点，**把脸放在正中间**就没问题
+- 不想显示头像：把 `site.config.json` 里 `sidebar.avatar` 这一行删掉
 
 ### 颜色、字体、字号
 
@@ -386,6 +394,8 @@ html[data-theme="dark"] { ... }
 | 改首页文案 | `site.config.json` → `hero.lead` / `hero.note` |
 | 改「近来」 | `site.config.json` → `now` |
 | 改「关于我」 | `pages/about.md` |
+| 换头像 | 覆盖 `assets/img/avatar.jpg`（正方形、脸居中最稳） |
+| 侧栏换边 | `site.config.json` → `sidebar.position` 改成 `left` |
 | 加照片 | 放 `assets/img/`，正文写 `![说明](/assets/img/x.jpg)` |
 | 换强调色 | `assets/styles.css` → `--accent` |
 | 换纸张底色 | `assets/styles.css` → `--paper` |

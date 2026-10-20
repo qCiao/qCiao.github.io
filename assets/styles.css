@@ -953,7 +953,7 @@ kbd {
   width: 84px;
   height: 84px;
   margin: 0 0 18px;
-  border-radius: 4px;
+  border-radius: 50%;
   border: 1px solid var(--line);
   background: var(--paper-2);
   object-fit: cover;

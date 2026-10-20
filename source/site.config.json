@@ -23,7 +23,7 @@
     { "label": "关于我", "href": "/about/" }
   ],
   "sidebar": {
-    "position": "left",
+    "position": "right",
     "avatar": "/assets/img/avatar.jpg",
     "about": "一个普通的写作者。这里放一些没地方放的句子。",
     "tagLimit": 8
