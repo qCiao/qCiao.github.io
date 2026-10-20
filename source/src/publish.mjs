@@ -16,7 +16,8 @@ const config = JSON.parse(fs.readFileSync(path.join(root, 'site.config.json'), '
 
 const OWNER = 'qCiao';
 const REPO = 'qCiao.github.io';
-const BRANCHES = { source: 'main', site: 'gh-pages' };
+const BRANCH = 'main';
+const SOURCE_PREFIX = 'source/';
 const API = 'https://api.github.com';
 const SITE = config.url.replace(/\/$/, '');
 
@@ -80,12 +81,12 @@ function collect(dir, base = '') {
 
 /* ------------------------------ 发布逻辑 ------------------------------ */
 
-async function publishBranch(branch, files, message) {
+async function publish(files, message) {
   const base = `/repos/${OWNER}/${REPO}`;
 
   let parent = null;
   try {
-    const ref = await api(`${base}/git/ref/heads/${branch}`);
+    const ref = await api(`${base}/git/ref/heads/${BRANCH}`);
     parent = ref.object.sha;
   } catch (e) {
     if (e.status !== 404) throw e;
@@ -113,43 +114,30 @@ async function publishBranch(branch, files, message) {
   });
 
   if (parent) {
-    await api(`${base}/git/refs/heads/${branch}`, {
+    await api(`${base}/git/refs/heads/${BRANCH}`, {
       method: 'PATCH',
       body: { sha: commit.sha, force: true },
     });
   } else {
     await api(`${base}/git/refs`, {
       method: 'POST',
-      body: { ref: `refs/heads/${branch}`, sha: commit.sha },
+      body: { ref: `refs/heads/${BRANCH}`, sha: commit.sha },
     });
   }
 
-  console.log(`   ✓ ${branch}  ${commit.sha.slice(0, 7)}  (${files.length} 个文件)`);
+  console.log(`   ✓ ${BRANCH}  ${commit.sha.slice(0, 7)}  (${files.length} 个文件)`);
   return commit.sha;
 }
 
-async function ensurePages() {
-  const base = `/repos/${OWNER}/${REPO}`;
+async function pagesInfo() {
   try {
-    await api(`${base}/pages`, {
-      method: 'PATCH',
-      body: { source: { branch: BRANCHES.site, path: '/' } },
-    });
-    console.log('   ✓ Pages 已指向 gh-pages');
-  } catch (e) {
-    if (e.status === 404) {
-      await api(`${base}/pages`, {
-        method: 'POST',
-        body: { source: { branch: BRANCHES.site, path: '/' } },
-      });
-      console.log('   ✓ 已开启 Pages（gh-pages）');
-    } else {
-      console.log(`   ! Pages 设置失败：${String(e.message).split('\n')[0]}`);
-    }
+    return await api(`/repos/${OWNER}/${REPO}/pages`);
+  } catch {
+    return null;
   }
 }
 
-async function waitForBuild(maxSeconds = 180) {
+async function waitForBuild(maxSeconds = 240) {
   const started = Date.now();
   while ((Date.now() - started) / 1000 < maxSeconds) {
     try {
@@ -173,23 +161,24 @@ execFileSync(process.execPath, [path.join(root, 'src/build.mjs')], {
   stdio: 'inherit',
 });
 
-console.log('② 提交源码到 main…');
-const sourceFiles = collect(root);
-await publishBranch(BRANCHES.source, sourceFiles, `更新源码 ${stamp}`);
-
-console.log('③ 提交网页到 gh-pages…');
+console.log('② 提交到 main（网页在根目录，源码在 source/）…');
 const siteFiles = collect(path.join(root, 'dist'), '');
-await publishBranch(BRANCHES.site, siteFiles, `发布 ${stamp}`);
+const sourceFiles = collect(root, SOURCE_PREFIX);
+await publish([...siteFiles, ...sourceFiles], `发布 ${stamp}`);
 
-console.log('④ 检查 GitHub Pages…');
-await ensurePages();
+const pages = await pagesInfo();
+if (pages) {
+  console.log(`③ GitHub Pages：${pages.source?.branch || '?'} / ${pages.source?.path || '?'} → ${pages.html_url}`);
+} else {
+  console.log('③ 还没开启 Pages，请到仓库 Settings → Pages 里把源选成 main / (root)');
+}
 
 const status = await waitForBuild();
 
 if (status === 'built') {
   console.log(`\n✓ 发布完成：${SITE}/\n`);
 } else if (status === 'errored') {
-  console.log(`\n! 网页已推送，但 Pages 构建失败。请打开仓库 Settings → Pages 查看原因。\n`);
+  console.log('\n! 网页已推送，但 Pages 构建失败。请打开仓库 Settings → Pages 查看原因。\n');
 } else {
   console.log(`\n✓ 已推送。GitHub 还在构建，稍等一分钟再打开：${SITE}/\n`);
 }
