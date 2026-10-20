@@ -11,8 +11,8 @@
   --muted: #6a645b;
   --line: #e2dacb;
   --line-2: #ece5d7;
-  --accent: #a8452f;
-  --accent-soft: rgba(168, 69, 47, 0.35);
+  --accent: #2c4557;
+  --accent-soft: rgba(44, 69, 87, 0.32);
   --mark: #f3e2c8;
 
   --serif: Georgia, "Songti SC", "Source Han Serif SC", "Noto Serif SC", SimSun, serif;
@@ -34,8 +34,8 @@ html[data-theme="dark"] {
   --muted: #a9a29a;
   --line: #35312b;
   --line-2: #26231e;
-  --accent: #e59377;
-  --accent-soft: rgba(229, 147, 119, 0.4);
+  --accent: #93b2c9;
+  --accent-soft: rgba(147, 178, 201, 0.38);
   --mark: #463322;
   color-scheme: dark;
 }
