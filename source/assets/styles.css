@@ -25,9 +25,9 @@
     "Microsoft YaHei", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;
   --mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --wrap: 1100px;
-  --side: 244px;
-  --gap: 60px;
+  --wrap: 980px;
+  --side: 220px;
+  --gap: 48px;
   color-scheme: light;
 }
 
@@ -98,7 +98,7 @@ img {
 .wrap {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 0 44px;
+  padding: 0 40px;
 }
 
 .skip-link {
@@ -1123,8 +1123,8 @@ kbd {
 }
 
 .heat {
-  --cell: 15px;
-  --cell-gap: 3px;
+  --cell: 14px;
+  --cell-gap: 2px;
   --year-w: 40px;
   --row-gap: 12px;
   display: grid;
