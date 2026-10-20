@@ -36,7 +36,11 @@ function getToken() {
   try {
     return execFileSync('gh', ['auth', 'token'], { encoding: 'utf8' }).trim();
   } catch {
-    console.error('✗ 找不到登录信息。请先运行：gh auth login');
+    console.error(
+      '✗ 找不到 GitHub 登录信息。\n' +
+        '  请先运行：gh auth login\n' +
+        '  或者先设置环境变量：set GITHUB_TOKEN=你的token'
+    );
     process.exit(1);
   }
 }
