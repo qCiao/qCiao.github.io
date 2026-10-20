@@ -36,6 +36,9 @@ qCiao。这个名字没有什么其他的含义，q是我的姓，而Ciao是意�
 ## 联系
 
 - GitHub：[qCiao](https://github.com/qCiao)
-- Echo077881@outlook.com
 
-*最后更新：2026 年 10 月*
+- 豆瓣：[qqq](https://www.douban.com/people/258435252/)
+- 网易云音乐：[gooddogre](https://music.163.com/#/user/home?id=3892733752)
+
+
+ *最后更新：2026 年 10 月*
