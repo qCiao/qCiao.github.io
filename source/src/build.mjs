@@ -136,6 +136,41 @@ function readArchive() {
     .sort((a, b) => b.date - a.date);
 }
 
+/* ------------------------------- 写作热力图 ------------------------------- */
+
+/** 每年一行，每格一周（从 1 月 1 日起每 7 天一格），统计随笔篇数 */
+function buildHeatmap(posts, now = new Date()) {
+  const years = posts.map((p) => p.date.getFullYear());
+  const firstYear = years.length ? Math.min(...years) : now.getFullYear();
+  const rows = [];
+
+  for (let y = now.getFullYear(); y >= firstYear; y--) {
+    const cells = [];
+    const dec31 = new Date(y, 11, 31, 23, 59, 59);
+
+    for (let col = 0; col < 53; col++) {
+      const start = new Date(y, 0, 1 + col * 7);
+      if (start > dec31) break;
+
+      const rawEnd = new Date(y, 0, 1 + col * 7 + 6, 23, 59, 59);
+      const end = rawEnd > dec31 ? dec31 : rawEnd;
+      const count = posts.filter((p) => p.date >= start && p.date <= end).length;
+
+      cells.push({
+        start,
+        end,
+        count,
+        level: count === 0 ? 0 : count === 1 ? 1 : count === 2 ? 2 : count === 3 ? 3 : 4,
+        future: start > now,
+      });
+    }
+
+    rows.push({ year: y, cells });
+  }
+
+  return rows;
+}
+
 /* ------------------------------- 写文件 ------------------------------- */
 
 function write(relPath, content) {
@@ -180,7 +215,7 @@ const archiveYears = [...yearCount.entries()]
   .map(([year, count]) => ({ year, count }))
   .sort((a, b) => b.year - a.year);
 
-const ctx = { config, posts, archive, tags, archiveYears };
+const ctx = { config, posts, archive, tags, archiveYears, heat: buildHeatmap(posts) };
 
 if (fs.existsSync(dist)) fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
