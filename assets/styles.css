@@ -25,7 +25,7 @@
     "Microsoft YaHei", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;
   --mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --wrap: 1100px;
+  --wrap: 1150px;
   --side: 236px;
   --gap: 60px;
   color-scheme: light;
@@ -269,7 +269,6 @@ img {
 
 .intro-text {
   margin: 14px 0 0;
-  max-width: 34em;
   font-size: 16px;
   line-height: 1.95;
   color: var(--ink-2);
