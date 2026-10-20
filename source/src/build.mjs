@@ -170,7 +170,7 @@ write('tags/index.html', T.tagsPage(ctx));
 
 for (const tag of tags) {
   const list = posts.filter((p) => p.tags.includes(tag.name));
-  write(`tags/${encodeURIComponent(tag.name)}/index.html`, T.tagPostPage(ctx, tag.name, list));
+  write(`tags/${tag.name}/index.html`, T.tagPostPage(ctx, tag.name, list));
 }
 
 write('search/index.html', T.searchPage(ctx));
